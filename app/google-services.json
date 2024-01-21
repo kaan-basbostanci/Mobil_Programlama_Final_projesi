@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "872289093002",
+    "firebase_url": "https://mobil-programlama-final-proje-default-rtdb.firebaseio.com",
+    "project_id": "mobil-programlama-final-proje",
+    "storage_bucket": "mobil-programlama-final-proje.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:872289093002:android:ac212b4d79461f4b98b473",
+        "android_client_info": {
+          "package_name": "com.example.mobil_programlama_final_uygulama"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9oPvmCXj5Urzh3et47E6wY_Q4-dauDFw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
