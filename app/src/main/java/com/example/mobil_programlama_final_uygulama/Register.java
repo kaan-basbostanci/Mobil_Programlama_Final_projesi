@@ -1,5 +1,6 @@
 package com.example.mobil_programlama_final_uygulama;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,12 +20,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.auth.User;
 
 public class Register extends AppCompatActivity {
 
@@ -34,7 +32,7 @@ public class Register extends AppCompatActivity {
     FirebaseAuth auth;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
@@ -46,58 +44,53 @@ public class Register extends AppCompatActivity {
         tvLogin = findViewById(R.id.tvLogin);
         auth = FirebaseAuth.getInstance();
 
-        tvLogin.setOnClickListener(new View.OnClickListener() {
+        tvLogin.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View view) {
-              startActivity(new Intent(getApplicationContext(),Login.class));
+            public void onClick(View view){
+                startActivity(new Intent(getApplicationContext(),Login.class));
             }
         });
-        btnSignup.setOnClickListener(new View.OnClickListener() {
+        btnSignup.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View view) {
-                String email= etEmail.getText().toString();
+            public void onClick(View view){
+                String email = etEmail.getText().toString();
                 String password = etPassword.getText().toString();
                 String name = etName.getText().toString();
                 String lastName = etlastName.getText().toString();
 
                 FirebaseAuth auth = FirebaseAuth.getInstance();
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                CollectionReference ref = db.collection("UserModel"); // Firestore'da belirlenen koleksiyon adını kullanın
+                CollectionReference ref = db.collection("UserModel");
 
-                auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    String uid = task.getResult().getUser().getUid();
-                                    Toast.makeText(getApplicationContext(), "Kayıt oldunuz", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(getApplicationContext(), Login.class));
+                auth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()){
+                            String uid = task.getResult().getUser().getUid();
+                            Toast.makeText(getApplicationContext(), "Kayıt oldunuz", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getApplicationContext(), Login.class));
 
-                                    // Kullanıcı UID'si ile belirli bir belge oluşturun ve UserModel'i bu belgeye ekleyin
-                                    DocumentReference userDocument = ref.document(uid);
-                                    UserModel user = new UserModel(email, lastName, name);
-                                    userDocument.set(user)
-                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    // Firestore'a başarıyla kaydedildi
-                                                    Toast.makeText(Register.this, "Firestore'a kayıt başarılı", Toast.LENGTH_SHORT).show();
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    // Firestore'a kaydetme başarısız oldu
-                                                    Toast.makeText(Register.this, "Firestore'a kayıt başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                    Log.e("FirestoreKayitHata", "Firestore'a kayıt başarısız: " + e.getMessage());
-                                                }
-                                            });
-                                } else {
-                                    Toast.makeText(getApplicationContext(), "Kayıt başarısız", Toast.LENGTH_SHORT).show();
+                            DocumentReference userDocument = ref.document(uid);
+                            UserModel user = new UserModel(email, lastName, name);
+                            userDocument.set(user).addOnSuccessListener(new OnSuccessListener<Void>(){
+                                @Override
+                               public void onSuccess( Void aVoid) {
+                                    Toast.makeText(Register.this, "Firestore'a kayıt başarılı", Toast.LENGTH_SHORT).show();
                                 }
-                            }
-                        });
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(Register.this, "Firestore'a kayıt başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }else {
+                        Toast.makeText(getApplicationContext(), "Kayıt başarısız:", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
+
     }
+
 }

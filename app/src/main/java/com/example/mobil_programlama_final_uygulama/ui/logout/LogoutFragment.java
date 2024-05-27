@@ -38,7 +38,7 @@ public class LogoutFragment extends Fragment {
         // Logout butonunu bul
         Button btnLogout = view.findViewById(R.id.btnLogout);
 
-        // Butona tıklama olayını ekle
+
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

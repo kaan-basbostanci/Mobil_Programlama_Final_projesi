@@ -43,7 +43,7 @@ import java.util.UUID;
 
 public class AddPhotoFragment extends Fragment {
 
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_CAPTURE =1;
 
     private View rootView;
     private ImageView imageView;
@@ -56,21 +56,18 @@ public class AddPhotoFragment extends Fragment {
     private List<String> labels;
     private File currentPhotoFile;
 
-    public AddPhotoFragment() {
-        // Required empty public constructor
-    }
+    public AddPhotoFragment(){}
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         labels = new ArrayList<>();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_add_photo, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        rootView = inflater.inflate(R.layout.fragment_add_photo, container,false);
 
         imageView = rootView.findViewById(R.id.imageView);
         labelContainer = rootView.findViewById(R.id.labelContainer);
@@ -78,35 +75,29 @@ public class AddPhotoFragment extends Fragment {
         btnAdd = rootView.findViewById(R.id.btnAdd);
 
         btnCamera.setOnClickListener(view -> dispatchTakePictureIntent());
-        btnAdd.setOnClickListener(view -> uploadPhotoToFirestore());
-
-        // Firestore'dan labelleri çek
+        btnAdd.setOnClickListener(view-> uploadPhotoToFirestore());
         getLabelsFromFirestore();
 
         return rootView;
     }
 
-    private void dispatchTakePictureIntent() {
+    private void dispatchTakePictureIntent(){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null){
             File photoFile = null;
             try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-
-            if (photoFile != null) {
+                photoFile= createImageFile();
+            }catch (IOException ex){ex.printStackTrace();}
+            if (photoFile!=null){
                 Uri photoURI = FileProvider.getUriForFile(requireContext(),
                         "com.example.mobil_programlama_final_uygulama.fileprovider",
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
     }
 
-    // 1. createImageFile metodundan dönen dosya nesnesini kullanarak currentPhotoFile adlı bir değişkeni güncelleyin
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -128,36 +119,23 @@ public class AddPhotoFragment extends Fragment {
         }
     }
 
-    private void displayCapturedPhoto() {
-        if (currentPhotoFile != null) {
-            // Burada bir Uri oluşturuyoruz
+    private void displayCapturedPhoto(){
+        if (currentPhotoFile!= null){
             Uri photoUri = Uri.fromFile(currentPhotoFile);
 
-            // Oluşturduğumuz Uri'yi kullanarak ImageView'a fotoğrafı yükleyebiliriz
-            Glide.with(this)
-                    .load(photoUri)
-                    .into(imageView);
-        } else {
-            Toast.makeText(requireContext(), "Fotoğraf bulunamadı", Toast.LENGTH_SHORT).show();
-        }
+            Glide.with(this).load(photoUri).into(imageView);
+        }else {Toast.makeText(requireContext(), "Fotoğraf bulunamadı", Toast.LENGTH_SHORT).show();}
     }
-
-    private void getLabelsFromFirestore() {
-        db.collection("Labels")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    labels.clear();
-                    for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        String label = document.getString("Label");
-                        labels.add(label);
-                    }
-                    updateLabelUI();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(), "Firestore'dan veri çekme başarısız", Toast.LENGTH_SHORT).show();
-                });
+    private void getLabelsFromFirestore(){
+        db.collection("Labels").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            labels.clear();
+            for (DocumentSnapshot document : queryDocumentSnapshots){
+                String label = document.getString("Label");
+                labels.add(label);
+            }
+            updateLabelUI();
+        }).addOnFailureListener(e -> {Toast.makeText(requireContext(), "Firestore'dan veri çekme başarısız", Toast.LENGTH_SHORT).show();});
     }
-
     private void updateLabelUI() {
         labelContainer.removeAllViews();
         for (String label : labels) {
@@ -167,13 +145,13 @@ public class AddPhotoFragment extends Fragment {
         }
     }
 
-    private List<String> getSelectedLabels() {
+    private List<String> getSelectedLabels(){
         List<String> selectedLabels = new ArrayList<>();
-        for (int i = 0; i < labelContainer.getChildCount(); i++) {
+        for (int i = 0;i< labelContainer.getChildCount();i++){
             View view = labelContainer.getChildAt(i);
-            if (view instanceof CheckBox) {
+            if (view instanceof CheckBox){
                 CheckBox checkBox = (CheckBox) view;
-                if (checkBox.isChecked()) {
+                if (checkBox.isChecked()){
                     selectedLabels.add(checkBox.getText().toString());
                 }
             }
@@ -181,53 +159,44 @@ public class AddPhotoFragment extends Fragment {
         return selectedLabels;
     }
 
-    private void uploadPhotoToFirestore() {
+    private void uploadPhotoToFirestore(){
         if (currentPhotoFile != null) {
             uploadImageToFirestore(currentPhotoFile);
-        } else {
-            Toast.makeText(requireContext(), "Dosya yolu bulunamadı", Toast.LENGTH_SHORT).show();
-        }
+        }else {Toast.makeText(requireContext(), "Dosya yolu bulunamadı", Toast.LENGTH_SHORT).show();}
     }
 
-    // 2. uploadImageToFirestore metodunu aşağıdaki gibi güncelleyin
-    private void uploadImageToFirestore(File imageFile) {
-        if (imageFile != null) {
+    private void uploadImageToFirestore(File imageFile){
+        if (imageFile != null){
             Uri imageUri = Uri.fromFile(imageFile);
-            StorageReference photoRef = FirebaseStorage.getInstance().getReference().child("photos/" + UUID.randomUUID() + ".jpg");
+            StorageReference photoRef = FirebaseStorage.getInstance().getReference().child("photos/"+UUID.randomUUID()+".jpg");
 
-            photoRef.putFile(imageUri)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        photoRef.getDownloadUrl()
-                                .addOnSuccessListener(uri -> {
-                                    String imageURL = uri.toString();
-                                    savePhotoToFirestore(imageURL);
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(requireContext(), "URL alınamadı", Toast.LENGTH_SHORT).show();
-                                });
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(requireContext(), "Fotoğraf yüklenemedi", Toast.LENGTH_SHORT).show();
-                    });
+            photoRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
+                photoRef.getDownloadUrl().addOnSuccessListener(uri ->{
+                    String imageURL = uri.toString();
+                    savePhotoToFirestore(imageURL);
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(requireContext(), "URL alınamadı", Toast.LENGTH_SHORT).show();
+                });
+            }).addOnFailureListener(e -> {
+                Toast.makeText(requireContext(), "fotoğraf Yüklenemedi", Toast.LENGTH_SHORT).show();
+            });
         } else {
             Toast.makeText(requireContext(), "Dosya yolu bulunamadı", Toast.LENGTH_SHORT).show();
         }
     }
-
-    private void savePhotoToFirestore(String imageURL) {
+private void savePhotoToFirestore(String imageURL){
         List<String> selectedLabels = getSelectedLabels();
 
         Map<String, Object> photoMap = new HashMap<>();
         photoMap.put("url", imageURL);
-        photoMap.put("labels", selectedLabels);
+        photoMap.put("labels",selectedLabels);
 
-        db.collection("Photos")
-                .add(photoMap)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(requireContext(), "Fotoğraf Firestore'a eklendi", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(), "Firestore'a kayıt başarısız", Toast.LENGTH_SHORT).show();
-                });
-    }
+        db.collection("Photos").add(photoMap).addOnSuccessListener(documentReference -> {
+            Toast.makeText(requireContext(), "Fotoğraf Firestore'a eklendi", Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(e->{
+            Toast.makeText(requireContext(), "Fotoğraf Firestore'a eklenemedi", Toast.LENGTH_SHORT).show();
+        });
+}
+
+
 }

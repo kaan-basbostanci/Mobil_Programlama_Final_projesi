@@ -40,12 +40,12 @@ public class AddLabelFragment extends Fragment {
     private LabelAdapter labelAdapter;
     private List<LabelModel> labelList;
 
-    public AddLabelFragment() {
-        // Required empty public constructor
+    public AddLabelFragment(){
+
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         auth = FirebaseAuth.getInstance();
@@ -58,7 +58,7 @@ public class AddLabelFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_add_label, container, false);
 
         recyclerViewLabels = rootView.findViewById(R.id.recyclerViewLabels);
-        recyclerViewLabels.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerViewLabels.setLayoutManager((new LinearLayoutManager(getActivity())));
         labelList = new ArrayList<>();
         labelAdapter = new LabelAdapter(labelList);
         recyclerViewLabels.setAdapter(labelAdapter);
@@ -66,24 +66,20 @@ public class AddLabelFragment extends Fragment {
         etLabel = rootView.findViewById(R.id.etLabel);
         etDescription = rootView.findViewById(R.id.etDescription);
         btnAdd = rootView.findViewById(R.id.btnAdd);
-        tvLabel = rootView.findViewById(R.id.tvLabel);
-        tvDescription = rootView.findViewById(R.id.tvDescription);
+        tvLabel= rootView.findViewById(R.id.tvLabel);
+        tvDescription= rootView.findViewById(R.id.tvDescription);
 
-        btnAdd.setOnClickListener(new View.OnClickListener() {
+        btnAdd.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View view) {
+            public void onClick(View view){
                 String label = etLabel.getText().toString();
                 String description = etDescription.getText().toString();
                 addLabelToFirestore(label, description);
             }
         });
-
-        // Firestore'dan verileri çek ve RecyclerView'a ata
         getLabelsFromFirestore();
-
         return rootView;
     }
-
     private void getLabelsFromFirestore() {
         db.collection("Labels")
                 .get()
@@ -101,20 +97,16 @@ public class AddLabelFragment extends Fragment {
                 });
     }
 
-    private void addLabelToFirestore(String label, String description) {
+    private void addLabelToFirestore(String label, String description){
         Map<String, Object> labelMap = new HashMap<>();
         labelMap.put("Label", label);
         labelMap.put("Description", description);
 
-        db.collection("Labels")
-                .add(labelMap)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(getActivity(), "Firestore'a kayıt başarılı", Toast.LENGTH_SHORT).show();
-                    // Firestore'a veri eklendikten sonra RecyclerView'ı güncelle
-                    getLabelsFromFirestore();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getActivity(), "Firestore'a kayıt başarısız", Toast.LENGTH_SHORT).show();
-                });
+        db.collection("Labels").add(labelMap).addOnSuccessListener(documentReference -> {
+            Toast.makeText(getActivity(), "Firestore'a kayıt başarılı", Toast.LENGTH_SHORT).show();
+            getLabelsFromFirestore();
+        }).addOnFailureListener(e -> {
+            Toast.makeText(getActivity(), "Firestore'a kayıt başarısız", Toast.LENGTH_SHORT).show();
+        });
     }
 }

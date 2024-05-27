@@ -30,6 +30,8 @@ import java.util.List;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 public class GalleryFragment extends Fragment {
 
     private Spinner dropdown;
@@ -83,12 +85,12 @@ public class GalleryFragment extends Fragment {
                             }
 
 
-                                ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                                        android.R.layout.simple_spinner_dropdown_item, labels);
-                                dropdown.setAdapter(adapter);
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                                    android.R.layout.simple_spinner_dropdown_item, labels);
+                            dropdown.setAdapter(adapter);
 
-                                // Adapter güncellendi, bildirim yap
-                                adapter.notifyDataSetChanged();
+                            // Adapter güncellendi, bildirim yap
+                            adapter.notifyDataSetChanged();
                         }
                     }
                 });
@@ -99,41 +101,34 @@ public class GalleryFragment extends Fragment {
     }
 
     private void loadPhotos(String selectedLabel) {
-        linearLayout.removeAllViews(); // Önceki gösterimi temizle
 
-        db.collection("Photos")
-                .whereArrayContains("labels", selectedLabel)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String url = document.getString("url");
-                                List<String> labels = (List<String>) document.get("labels");
-                                showPhoto(url, labels);
-                            }
-                        }
-                    }
-                });
+       linearLayout.removeAllViews();
+
+       db.collection("Photos").whereArrayContains("labels", selectedLabel).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+           @Override
+           public void onComplete(@NonNull Task<QuerySnapshot> task) {
+               if (task.isSuccessful()){
+                   for (QueryDocumentSnapshot document : task.getResult()){
+                       String url = document.getString("url");
+                       List<String> labels = (List<String>) document.get("labels");
+                       showPhoto(url, labels);
+                   }
+               }
+           }
+       });
     }
+    private void showPhoto(String url, List<String> labels){
+        View photoView = LayoutInflater.from(requireContext()).inflate(R.layout.item_photo,null);
 
-    private void showPhoto(String url, List<String> labels) {
-        // Yeni bir fotoğraf ve etiket gösterimi oluştur
-        View photoView = LayoutInflater.from(requireContext()).inflate(R.layout.item_photo, null);
-
-        TextView labelsTextView = photoView.findViewById(R.id.labelsTextView);
+        TextView labelsTextView= photoView.findViewById(R.id.labelsTextView);
         ImageView photoImageView = photoView.findViewById(R.id.photoImageView);
 
+        labelsTextView.setText(TextUtils.join(",", labels));
 
-        labelsTextView.setText(TextUtils.join(", ", labels));
+        Glide.with(requireContext()).load(url).into(photoImageView);
 
-        // Fotoğrafı Glide kullanarak yükle
-        Glide.with(requireContext())
-                .load(url)
-                .into(photoImageView);
-
-        // Fotoğraf ve etiket gösterimini LinearLayout'a ekle
         linearLayout.addView(photoView);
     }
+
+
 }
